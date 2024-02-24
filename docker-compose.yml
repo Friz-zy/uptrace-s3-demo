@@ -1,0 +1,39 @@
+version: '3.8'
+
+x-service: &service
+  logging:
+    driver: json-file
+    options:
+      max-size: "100m"
+      max-file: "2"
+  restart: "on-failure"
+
+services:
+
+  minio:
+    <<: *service
+    image: minio/minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    entrypoint: sh
+    command: -c 'mkdir -p /data/clickhouse && /usr/bin/minio server --address :9000 --console-address :9001 /data'
+    ports:
+      - 9001:9001
+    volumes:
+      - ./data/minio:/data
+
+  clickhouse:
+    <<: *service
+    image: bitnami/clickhouse:23
+    environment:
+      ALLOW_EMPTY_PASSWORD: "yes"
+      CLICKHOUSE_MOUNTED_DIR: /bitnami/clickhouse
+    ports:
+      - 9000:9000
+      - 9004:9004
+      - 9005:9005
+      - 8123:8123
+    volumes:
+      - ./configs/clickhouse/:/bitnami/clickhouse/etc/conf.d/
+      #- ./data/clickhouse:/bitnami/clickhouse

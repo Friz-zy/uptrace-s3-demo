@@ -1,0 +1,85 @@
+<clickhouse>
+    <storage_configuration>
+        <disks>
+            <s3_default>
+                <type>s3</type>
+                <endpoint>http://minio:9000/clickhouse/default/</endpoint>
+                <access_key_id>minioadmin</access_key_id>
+                <secret_access_key>minioadmin</secret_access_key>
+
+                <metadata_path>/bitnami/clickhouse/data/disks/s3_default/</metadata_path>
+                <cache_enabled>true</cache_enabled>
+                <data_cache_enabled>true</data_cache_enabled>
+                <enable_filesystem_cache>true</enable_filesystem_cache>
+                <cache_on_write_operations>true</cache_on_write_operations>
+                <max_cache_size>1Gi</max_cache_size>
+                <cache_path>/bitnami/clickhouse/data/disks/s3_default/cache/</cache_path>
+            </s3_default>
+            <s3_metrics>
+                <type>s3</type>
+                <endpoint>http://minio:9000/clickhouse/metrics/</endpoint>
+                <access_key_id>minioadmin</access_key_id>
+                <secret_access_key>minioadmin</secret_access_key>
+
+                <metadata_path>/bitnami/clickhouse/data/disks/s3_metrics/</metadata_path>
+                <cache_enabled>true</cache_enabled>
+                <data_cache_enabled>true</data_cache_enabled>
+                <enable_filesystem_cache>true</enable_filesystem_cache>
+                <cache_on_write_operations>true</cache_on_write_operations>
+                <max_cache_size>1Gi</max_cache_size>
+                <cache_path>/bitnami/clickhouse/data/disks/s3_metrics/cache/</cache_path>
+            </s3_metrics>
+            <s3_spans>
+                <type>s3</type>
+                <endpoint>http://minio:9000/clickhouse/spans/</endpoint>
+                <access_key_id>minioadmin</access_key_id>
+                <secret_access_key>minioadmin</secret_access_key>
+
+                <metadata_path>/bitnami/clickhouse/data/disks/s3_spans/</metadata_path>
+                <cache_enabled>true</cache_enabled>
+                <data_cache_enabled>true</data_cache_enabled>
+                <enable_filesystem_cache>true</enable_filesystem_cache>
+                <cache_on_write_operations>true</cache_on_write_operations>
+                <max_cache_size>1Gi</max_cache_size>
+                <cache_path>/bitnami/clickhouse/data/disks/s3_spans/cache/</cache_path>
+            </s3_spans>
+        </disks>
+        <policies>
+            <default>
+                <volumes>
+                    <volume_s3_default>
+                        <disk>s3_default</disk>
+                    </volume_s3_default>
+                </volumes>
+            </default>
+            <s3_metrics>
+                <volumes>
+                    <volume_s3_metrics>
+                        <disk>s3_metrics</disk>
+                    </volume_s3_metrics>
+                </volumes>
+            </s3_metrics>
+            <s3_spans>
+                <volumes>
+                    <volume_s3_spans>
+                        <disk>s3_spans</disk>
+                    </volume_s3_spans>
+                </volumes>
+            </s3_spans>
+            <duo>
+                <!-- items with equal priorities are ordered by their position in config -->
+                <volumes>
+                    <hot>
+                        <disk>default</disk>
+                    </hot>
+                    <cold>
+                        <disk>s3_default</disk>
+                        <prefer_not_to_merge>true</prefer_not_to_merge>
+                    </cold>
+                </volumes>
+                <!-- move data to s3 when disk usage will be more than 90% -->
+                <move_factor>0.1</move_factor>
+            </duo>
+        </policies>
+    </storage_configuration>
+</clickhouse>
