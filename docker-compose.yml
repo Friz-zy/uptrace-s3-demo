@@ -27,7 +27,7 @@ services:
     <<: *service
     image: bitnami/clickhouse:23
     environment:
-      ALLOW_EMPTY_PASSWORD: "yes"
+      CLICKHOUSE_ADMIN_PASSWORD: default
       CLICKHOUSE_MOUNTED_DIR: /bitnami/clickhouse
     ports:
       - 9000:9000
@@ -37,3 +37,46 @@ services:
     volumes:
       - ./configs/clickhouse/:/bitnami/clickhouse/etc/conf.d/
       #- ./data/clickhouse:/bitnami/clickhouse
+
+  postgres:
+    <<: *service
+    image: postgres:alpine
+    environment:
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_USER: uptrace
+      POSTGRES_PASSWORD: uptrace
+      POSTGRES_DB: uptrace
+    ports:
+      - 5432:5432
+    #volumes:
+      #- ./data/postgres:/var/lib/postgresql/data
+
+  mailhog:
+    <<: *service
+    image: mailhog/mailhog
+    ports:
+      - 1025:1025
+      - 8025:8025
+
+  uptrace:
+    <<: *service
+    image: uptrace/uptrace
+    ports:
+      - 14317:14317
+      - 14318:14318
+    volumes:
+      - ./configs/uptrace/uptrace.yml:/etc/uptrace/uptrace.yml
+
+  grafana:
+    <<: *service
+    image: grafana/grafana
+    ports:
+      - 3000:3000
+    volumes:
+      - ./configs/grafana:/etc/grafana/provisioning
+
+  telegraf:
+    <<: *service
+    image: telegraf
+    volumes:
+      - ./configs/telegraf:/etc/telegraf
